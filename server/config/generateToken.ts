@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
 
 export const generateActiveToken = (payload: object) => {
-    return jwt.sign(payload, `${process.env.ACTIVE_TOKEN_SECRET}`, { expiresIn: '5m' });
+    return jwt.sign(payload, `${process.env.ACTIVE_TOKEN_SECRET}`, { expiresIn: '10m' });
 };
 
 export const generateAccessToken = (payload: object) => {
-    return jwt.sign(payload, `${process.env.ACCESS_TOKEN_SECRET}`, { expiresIn: '15m' });
+    return jwt.sign(payload, `${process.env.ACCESS_TOKEN_SECRET}`, { expiresIn: '30m' });
 };
 
 export const generateRefreshToken = (payload: object) => {

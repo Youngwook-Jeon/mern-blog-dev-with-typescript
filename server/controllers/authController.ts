@@ -6,6 +6,7 @@ import { generateActiveToken } from '../config/generateToken';
 import sendEmail from '../config/sendMail';
 import { validateEmail, validPhone } from '../middleware/valid';
 import { sendSms } from '../config/sendSMS';
+import { IDecodedToken } from '../config/interface';
 
 const CLIENT_URL = `${process.env.BASE_URL}`;
 
@@ -31,6 +32,27 @@ const authController = {
             }
         } catch (err) {
             return res.status(500).json({ msg: err.message });
+        }
+    },
+    activateAccount: async (req: Request, res: Response) => {
+        try {
+            const { active_token } = req.body;
+            const decoded = <IDecodedToken>jwt.verify(active_token, `${process.env.ACTIVE_TOKEN_SECRET}`);
+            const { newUser } = decoded;
+            if (!newUser) return res.status(500).json({ msg: "Invalid authentication." });
+
+            const user = new Users(newUser);
+            await user.save();
+            res.json({ msg: "Account has been activated!" });
+        } catch (err) {
+            console.log(err);
+            let errMsg;
+            if (err.code === 11000) {
+                errMsg = Object.keys(err.keyValue)[0] + ' already exists.';
+            } else {
+                console.log(err);
+            }
+            return res.status(500).json({ msg: errMsg });
         }
     }
 }
