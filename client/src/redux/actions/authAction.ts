@@ -1,11 +1,15 @@
 import { Dispatch } from 'redux';
 import { AUTH, IAuthType } from '../types/authTypes';
+import { ALERT, IAlertType } from '../types/alertTypes';
 import { IUserLogin } from '../../utils/TypeScript';
 import { postAPI } from '../../utils/FetchData';
 
-export const login = (userLogin: IUserLogin) => async (dispatch: Dispatch<IAuthType>) => {
+export const login = (userLogin: IUserLogin) => async (dispatch: Dispatch<IAuthType | IAlertType>) => {
   try {
+    dispatch({ type: ALERT, payload: { loading: true }});
+
     const res = await postAPI('login', userLogin);
+
     dispatch({
       type: AUTH,
       payload: {
@@ -13,7 +17,9 @@ export const login = (userLogin: IUserLogin) => async (dispatch: Dispatch<IAuthT
         user: res.data.user
       }
     });
-  } catch (err) {
-    console.log(err);
+
+    dispatch({ type: ALERT, payload: { loading: false }});
+  } catch (err: any) {
+    dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
   }
 }
