@@ -2,7 +2,7 @@ import { Dispatch } from 'redux';
 import { AUTH, IAuthType } from '../types/authTypes';
 import { ALERT, IAlertType } from '../types/alertTypes';
 import { IUserLogin, IUserRegister } from '../../utils/TypeScript';
-import { postAPI } from '../../utils/FetchData';
+import { postAPI, getAPI } from '../../utils/FetchData';
 import { validRegister } from '../../utils/Validators';
 
 export const login = (userLogin: IUserLogin) => async (dispatch: Dispatch<IAuthType | IAlertType>) => {
@@ -17,6 +17,7 @@ export const login = (userLogin: IUserLogin) => async (dispatch: Dispatch<IAuthT
     });
 
     dispatch({ type: ALERT, payload: { success: res.data.msg }});
+    localStorage.setItem('logged', 'young');
   } catch (err: any) {
     dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
   }
@@ -31,6 +32,22 @@ export const register = (userRegister: IUserRegister) => async (dispatch: Dispat
     const res = await postAPI(`register`, userRegister);
 
     dispatch({ type: ALERT, payload: { success: res.data.msg }});
+  } catch (err: any) {
+    dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
+  }
+}
+
+export const refreshToken = () => async (dispatch: Dispatch<IAuthType | IAlertType>) => {
+  const logged = localStorage.getItem('logged');
+  if (logged !== 'young') return;
+
+  try {
+    dispatch({ type: ALERT, payload: { loading: true }});
+    const res = await getAPI(`refresh_token`);
+
+    dispatch({ type: AUTH, payload: res.data })
+
+    dispatch({ type: ALERT, payload: {} });
   } catch (err: any) {
     dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
   }
