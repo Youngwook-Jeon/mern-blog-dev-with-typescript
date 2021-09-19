@@ -21,7 +21,7 @@ const authController = {
             const newUser = { name, account, password: passwordHash };
 
             const active_token = generateActiveToken({ newUser });
-            const url = `${CLIENT_URL}/active/${active_token}`;
+            const url = `${CLIENT_URL}/activate/${active_token}`;
 
             if (validateEmail(account)) {
                 sendEmail(account, url, 'Verify your email address');
@@ -30,7 +30,7 @@ const authController = {
                 sendSms(account, url, "Verify your phone number");
                 return res.json({ msg: 'Success! Please check your phone.' });
             }
-        } catch (err) {
+        } catch (err: any) {
             return res.status(500).json({ msg: err.message });
         }
     },
@@ -41,18 +41,15 @@ const authController = {
             const { newUser } = decoded;
             if (!newUser) return res.status(500).json({ msg: "Invalid authentication." });
 
-            const user = new Users(newUser);
-            await user.save();
+            const user = await Users.findOne({ account: newUser.account });
+            if (user) return res.status(400).json({ msg: "The account already exists." });
+
+            const new_user = new Users(newUser);
+            await new_user.save();
             res.json({ msg: "Account has been activated!" });
-        } catch (err) {
-            console.log(err);
-            let errMsg;
-            if (err.code === 11000) {
-                errMsg = Object.keys(err.keyValue)[0] + ' already exists.';
-            } else {
-                console.log(err);
-            }
-            return res.status(500).json({ msg: errMsg });
+        } catch (err: any) {
+            
+            return res.status(500).json({ msg: err.message });
         }
     },
     login: async(req: Request, res: Response) => {
@@ -62,7 +59,7 @@ const authController = {
             if (!user) return res.status(400).json({ msg: 'This account does not exist.' });
 
             loginUser(user, password, res);
-        } catch (err) {
+        } catch (err: any) {
             return res.status(500).json({ msg: err.message });
         }
     },
@@ -70,7 +67,7 @@ const authController = {
         try {
             res.clearCookie('refreshtoken', { path: `/api/refresh_token` });
             return res.json({ msg: 'Logged out!' });
-        } catch (err) {
+        } catch (err: any) {
             return res.status(500).json({ msg: err.message });
         }
     },
@@ -88,7 +85,7 @@ const authController = {
             const access_token = generateAccessToken({ id: user._id });
             
             res.json({ access_token });
-        } catch (err) {
+        } catch (err: any) {
             return res.status(500).json({ msg: err.message });
         }
     },
