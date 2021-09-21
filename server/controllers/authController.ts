@@ -118,7 +118,7 @@ const authController = {
                     account: email, 
                     password: passwordHash, 
                     avatar: picture,
-                    type: 'login'
+                    type: 'google'
                 };
                 registerUser(user, res);
             }
@@ -149,7 +149,7 @@ const authController = {
                     account: email, 
                     password: passwordHash, 
                     avatar: picture.data.url,
-                    type: 'login'
+                    type: 'facebook'
                 };
                 registerUser(user, res);
             }
@@ -183,7 +183,7 @@ const authController = {
                     name: phone, 
                     account: phone, 
                     password: passwordHash, 
-                    type: 'login'
+                    type: 'sms'
                 };
                 registerUser(user, res);
             }
