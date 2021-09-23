@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {useSelector, useDispatch } from 'react-redux';
 import NotFound from '../components/global/NotFound';
 import { FormSubmit, RootStore, ICategory } from '../utils/TypeScript';
-import { createCategory, updateCategory } from '../redux/actions/categoryAction';
+import { createCategory, updateCategory, deleteCategory } from '../redux/actions/categoryAction';
 
 const Category = () => {
   const [name, setName] = useState("");
@@ -28,6 +28,11 @@ const Category = () => {
 
     setName('');
     setEdit(null);
+  }
+
+  const handleDelete = (id: string) => {
+    if (!auth.access_token) return;
+    dispatch(deleteCategory(id, auth.access_token));
   }
 
   if (auth.user?.role !== 'admin') return <NotFound />
@@ -61,7 +66,7 @@ const Category = () => {
 
               <div>
                 <i className="fas fa-edit mx-2" onClick={() => setEdit(c)} />
-                <i className="fas fa-trash-alt" />
+                <i className="fas fa-trash-alt" onClick={() => handleDelete(c._id)} />
               </div>
             </div>
           ))
