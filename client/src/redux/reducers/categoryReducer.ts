@@ -8,6 +8,11 @@ const categoryReducer = (state: ICategory[] = [], action: types.ICategoryType): 
 
     case types.GET_CATEGORIES:
       return action.payload;
+    
+    case types.UPDATE_CATEGORY:
+      return state.map(item => (
+        item._id === action.payload._id ? { ...item, name: action.payload.name } : item
+      ))
 
     default:
       return state;
