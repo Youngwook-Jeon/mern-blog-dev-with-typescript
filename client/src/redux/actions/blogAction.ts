@@ -2,6 +2,7 @@ import { Dispatch } from 'redux';
 import { IBlog } from '../../utils/TypeScript';
 import { imageUpload } from '../../utils/ImageUpload';
 import { ALERT, IAlertType } from '../types/alertTypes';
+import { postAPI } from '../../utils/FetchData';
 
 export const createBlog = (blog: IBlog, token: string) => async (dispatch: Dispatch<IAlertType>) => {
   let url;
@@ -16,7 +17,7 @@ export const createBlog = (blog: IBlog, token: string) => async (dispatch: Dispa
     }
     
     const newBlog = { ...blog, thumbnail: url };
-    console.log(newBlog);
+    const res = await postAPI('blog', newBlog, token);
 
     dispatch({ type: ALERT, payload: { loading: false }});
   } catch (err: any) {
