@@ -4,6 +4,7 @@ import CardHoriz from '../components/cards/CardHoriz';
 import CreateForm from '../components/cards/CreateForm';
 import NotFound from '../components/global/NotFound';
 import { RootStore, IBlog } from '../utils/TypeScript';
+import ReactQuill from '../components/editor/ReactQuill'
 
 const CreateBlog = () => {
   const initState = {
@@ -17,6 +18,7 @@ const CreateBlog = () => {
   };
 
   const [blog, setBlog] = useState<IBlog>(initState);
+  const [body, setBody] = useState('');
   const { auth, category } = useSelector((state: RootStore) => state); 
   const dispatch = useDispatch();
 
@@ -34,6 +36,12 @@ const CreateBlog = () => {
           <CardHoriz blog={blog} />
         </div>
       </div>
+
+      <ReactQuill setBody={setBody} />
+
+      <button className="btn btn-dark mt-3 d-block mx-auto">
+        Create Post
+      </button>
     </div>
   );
 };
