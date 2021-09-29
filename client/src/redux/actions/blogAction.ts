@@ -49,7 +49,7 @@ export const getBlogsByCategoryId = (id: string, search: string) => async (dispa
     let value = search ? search : `?page=${1}`;
     dispatch({ type: ALERT, payload: { loading: true }});
 
-    const res = await getAPI(`blogs/${id}${value}&limit=${limit}`);
+    const res = await getAPI(`blogs/category/${id}${value}&limit=${limit}`);
     
     dispatch({
       type: GET_BLOGS_CATEGORY_ID,

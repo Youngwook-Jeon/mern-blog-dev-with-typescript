@@ -93,7 +93,7 @@ const blogController = {
         {
           $facet: {
             totalData: [
-              { $match: { category: mongoose.Types.ObjectId(req.params.category_id) }},
+              { $match: { category: mongoose.Types.ObjectId(req.params.id) }},
               {
                 $lookup: {
                   from: "users",
@@ -113,7 +113,64 @@ const blogController = {
               { $limit: limit },
             ],
             totalCount: [
-              { $match: { category: mongoose.Types.ObjectId(req.params.category_id) }},
+              { $match: { category: mongoose.Types.ObjectId(req.params.id) }},
+              { $count: 'count' }
+            ]
+          }
+        },
+        {
+          $project: {
+            count: { $arrayElemAt: ["$totalCount.count", 0] },
+            totalData: 1
+          }
+        }
+      ]);
+
+      const blogs = data[0].totalData;
+      const count = data[0].count;
+
+      // Pagination
+      let total = 0;
+      if (count % limit === 0) {
+        total = count / limit;
+      } else {
+        total = Math.floor(count / limit) + 1;
+      }
+
+      res.json({ blogs, total });
+    } catch (err: any) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getBlogsByUser: async (req: Request, res: Response) => {
+    const { limit, skip } = Pagination(req);
+
+    try {
+      const data = await Blog.aggregate([
+        {
+          $facet: {
+            totalData: [
+              { $match: { user: mongoose.Types.ObjectId(req.params.id) }},
+              {
+                $lookup: {
+                  from: "users",
+                  let: { user_id: "$user" },
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$user_id"] }}},
+                    { $project: { password: 0 }}
+                  ],
+                  as: "user"
+                }
+              },
+              // array -> object
+              { $unwind: "$user" },
+              // sort
+              { $sort: { createdAt: -1 }},
+              { $skip: skip },
+              { $limit: limit },
+            ],
+            totalCount: [
+              { $match: { user: mongoose.Types.ObjectId(req.params.id) }},
               { $count: 'count' }
             ]
           }
