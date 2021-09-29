@@ -26,8 +26,3 @@
   grid-gap: 10px;
   margin-bottom: 15px;
 }
-
-.home_blogs .card a {
-  text-decoration: none;
-  text-transform: capitalize;
-}

@@ -6,7 +6,6 @@ import NotFound from '../components/global/NotFound';
 import { RootStore, IBlog } from '../utils/TypeScript';
 import ReactQuill from '../components/editor/ReactQuill'
 import { validateCreateBlog } from '../utils/Validators';
-import { imageUpload } from '../utils/ImageUpload';
 import { ALERT } from '../redux/types/alertTypes';
 import { createBlog } from '../redux/actions/blogAction';
 
