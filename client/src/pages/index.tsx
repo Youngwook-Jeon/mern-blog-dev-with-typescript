@@ -38,7 +38,7 @@ const Home = () => {
 
             {
               homeBlog.count > 4 &&
-              <Link className="text-end d-block mt-2 mb-3" to={`/blogs/${homeBlog.name}`}>
+              <Link className="text-end d-block mt-2 mb-3 text-decoration-none" to={`/blogs/${homeBlog.name}`}>
                 Read more &gt;&gt;
               </Link>
             }
