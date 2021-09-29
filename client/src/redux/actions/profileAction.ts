@@ -2,8 +2,9 @@ import { Dispatch } from 'redux';
 import { AUTH, IAuth, IAuthType } from '../types/authTypes';
 import { IAlertType, ALERT } from '../types/alertTypes';
 import { checkImage, imageUpload } from '../../utils/ImageUpload';
-import { patchAPI } from '../../utils/FetchData';
+import { patchAPI, getAPI } from '../../utils/FetchData';
 import { checkPassword } from '../../utils/Validators';
+import { GET_OTHER_INFO, IGetOtherInfoType } from '../types/profileTypes';
 
 export const updateUser = (avatar: File, name: string, auth: IAuth) => async (dispatch: Dispatch<IAlertType | IAuthType>) => {
   if (!auth.access_token || !auth.user) return;
@@ -52,6 +53,23 @@ export const resetPassword = (password: string, cf_password: string, token: stri
 
     const res = await patchAPI('reset_password', { password }, token);
     dispatch({ type: ALERT, payload: { success: res.data.msg }});  
+  } catch (err: any) {
+    dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
+  }
+}
+
+export const getOtherInfo = (id: string) => async (dispatch: Dispatch<IAlertType | IGetOtherInfoType>) => {
+  try {
+    dispatch({ type: ALERT, payload: { loading: true }});  
+
+    const res = await getAPI(`user/${id}`);
+    
+    dispatch({
+      type: GET_OTHER_INFO,
+      payload: res.data
+    })
+
+    dispatch({ type: ALERT, payload: {  }});  
   } catch (err: any) {
     dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
   }
