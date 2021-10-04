@@ -1,9 +1,17 @@
 import React from 'react';
+import { IComment } from '../../utils/TypeScript';
+import AvatarComment from './AvatarComment';
+import CommentList from './CommentList';
 
-const Comments = () => {
+interface IProps {
+  comment: IComment;
+}
+
+const Comments: React.FC<IProps> = ({ comment }) => {
   return (
-    <div>
-      <h3>Comments</h3>
+    <div className="my-3 d-flex">
+      <AvatarComment user={comment.user} />
+      <CommentList comment={comment} />
     </div>
   );
 };

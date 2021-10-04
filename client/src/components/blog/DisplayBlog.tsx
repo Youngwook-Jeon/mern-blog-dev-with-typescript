@@ -16,7 +16,7 @@ const DisplayBlog: React.FC<IProps> = ({ blog }) => {
   const [showComments, setShowComments] = useState<IComment[]>([]);
 
   const handleComment = (body: string) => {
-    if (!auth) return;
+    if (!auth.user || !auth.access_token) return;
 
     const data = {
       content: body,
@@ -62,7 +62,11 @@ const DisplayBlog: React.FC<IProps> = ({ blog }) => {
         </h5>
       }
 
-      
+      {
+        showComments?.map((comment, index) => (
+          <Comments key={index} comment={comment} />
+        ))
+      }
 
 
     </div>
