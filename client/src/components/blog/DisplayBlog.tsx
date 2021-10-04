@@ -4,13 +4,14 @@ import { Link } from 'react-router-dom';
 import { IBlog, RootStore, IUser, IComment } from '../../utils/TypeScript';
 import Input from '../comments/Input';
 import Comments from '../comments/Comments';
+import { createComment } from '../../redux/actions/commentAction';
 
 interface IProps {
   blog: IBlog;
 }
 
 const DisplayBlog: React.FC<IProps> = ({ blog }) => {
-  const { auth } = useSelector((state: RootStore) => state);
+  const { auth, comments } = useSelector((state: RootStore) => state);
   const dispatch = useDispatch();
 
   const [showComments, setShowComments] = useState<IComment[]>([]);
@@ -27,7 +28,13 @@ const DisplayBlog: React.FC<IProps> = ({ blog }) => {
     }
     
     setShowComments([data, ...showComments]);
+    dispatch(createComment(data, auth.access_token));
   };
+
+  useEffect(() => {
+    if (comments.data.length === 0) return;
+    setShowComments(comments.data);
+  }, [comments.data]);
 
   return (
     <div>
