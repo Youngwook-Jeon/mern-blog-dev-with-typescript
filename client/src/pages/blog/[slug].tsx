@@ -35,6 +35,8 @@ const BlogDetail = () => {
     <div className="my-4">
       { error && showErrMsg(error) }
       { blog && <DisplayBlog blog={blog} />}
+
+      <h2>Comments</h2>
     </div>
   );
 };
