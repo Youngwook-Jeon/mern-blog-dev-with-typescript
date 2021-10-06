@@ -8,6 +8,7 @@ import { Alert } from './components/alert/Alert';
 import { refreshToken } from './redux/actions/authAction';
 import { getCategories } from './redux/actions/categoryAction';
 import { getHomeBlogs } from './redux/actions/blogAction';
+import io from 'socket.io-client';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -17,6 +18,12 @@ const App = () => {
     dispatch(getHomeBlogs());
     dispatch(refreshToken());
   }, [dispatch]);
+
+  useEffect(() => {
+    const socket = io();
+    dispatch({ type: 'SOCKET', payload: socket });
+    return () => { socket.close() };
+  }, [dispatch])
   
   return (
     <div className="container">
