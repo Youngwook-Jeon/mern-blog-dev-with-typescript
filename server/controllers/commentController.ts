@@ -159,6 +159,25 @@ const commentController = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  updateComment: async (req: IReqAuth, res: Response) => {
+    if (!req.user) return res.status(400).json({ msg: "Invalid Authorization" });
+
+    try {
+      const { content } = req.body;
+
+      const comment = await Comments.findOneAndUpdate({
+        _id: req.params.id,
+        user: req.user.id
+      }, { content });
+
+      if (!comment)
+        return res.status(400).json({ msg: "Comment does not exist." });
+
+      return res.json({ msg: "Update Success!" });
+    } catch (err: any) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 export default commentController;

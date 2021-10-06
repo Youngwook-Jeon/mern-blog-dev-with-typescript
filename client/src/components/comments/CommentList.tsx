@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { replyComment, updateComment } from '../../redux/actions/commentAction';
+import { deleteComment, replyComment, updateComment } from '../../redux/actions/commentAction';
 import { IComment, RootStore } from '../../utils/TypeScript';
 import Input from './Input';
 
@@ -45,10 +45,16 @@ const CommentList: React.FC<IProps> = ({ children, comment, showReply, setShowRe
     setEdit(undefined);
   };
 
+  const handleDelete = (comment: IComment) => {
+    if (!auth.user || !auth.access_token) return;
+
+    dispatch(deleteComment(comment, auth.access_token));
+  }
+
   const Nav = (comment: IComment) => {
     return (
       <div>
-        <i className="fas fa-trash-alt mx-2" />
+        <i className="fas fa-trash-alt mx-2" onClick={() => handleDelete(comment)} />
         <i className="fas fa-edit me-2" onClick={() => setEdit(comment)} />
       </div>
     )
