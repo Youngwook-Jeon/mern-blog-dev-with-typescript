@@ -26,8 +26,8 @@ const commentReducer = (
           item._id === action.payload.comment_root ? { 
             ...item, 
             replyCM: [
-              ...item.replyCM as [],
-              action.payload
+              action.payload,
+              ...item.replyCM as []
             ]
           } : item
         ))

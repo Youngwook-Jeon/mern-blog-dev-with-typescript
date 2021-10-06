@@ -28,7 +28,7 @@ const CommentList: React.FC<IProps> = ({ children, comment, showReply, setShowRe
       createdAt: new Date().toISOString()
     };
 
-    setShowReply([...showReply, data]);
+    setShowReply([data, ...showReply]);
     dispatch(replyComment(data, auth.access_token));
     setOnReply(false);
   };
