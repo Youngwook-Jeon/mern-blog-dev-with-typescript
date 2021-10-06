@@ -1,4 +1,4 @@
-import { CREATE_COMMENT, GET_COMMENTS, ICommentState, ICommentType, REPLY_COMMENT } from '../types/commentTypes';
+import { CREATE_COMMENT, GET_COMMENTS, ICommentState, ICommentType, REPLY_COMMENT, UPDATE_COMMENT, UPDATE_REPLY } from '../types/commentTypes';
 
 const initialState = {
   data: [],
@@ -30,6 +30,28 @@ const commentReducer = (
               ...item.replyCM as []
             ]
           } : item
+        ))
+      }
+
+    case UPDATE_COMMENT:
+      return {
+        ...state,
+        data: state.data.map(item => (
+          item._id === action.payload._id ? action.payload : item
+        ))
+      }
+
+    case UPDATE_REPLY:
+      return {
+        ...state,
+        data: state.data.map(item => (
+          item._id === action.payload.comment_root ? {
+            ...item,
+            replyCM: item.replyCM?.map(rp => (
+              rp._id === action.payload._id ? action.payload : rp
+            ))
+          } 
+          : item
         ))
       }
 
