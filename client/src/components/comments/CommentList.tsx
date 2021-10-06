@@ -77,10 +77,10 @@ const CommentList: React.FC<IProps> = ({ children, comment, showReply, setShowRe
               </small>
 
               <small className="d-flex">
-                <div style={{ cursor: 'pointer' }}>
+                <div className="comment_nav">
                   {
                     comment.blog_user_id === auth.user?._id ?
-                      (comment.user._id === auth.user._id ? Nav(comment) : <i className="fas fa-trash-alt mx-2" />)
+                      (comment.user._id === auth.user._id ? Nav(comment) : <i className="fas fa-trash-alt mx-2" onClick={() => handleDelete(comment)} />)
                       : comment.user._id === auth.user?._id && Nav(comment)
                   }
                 </div>

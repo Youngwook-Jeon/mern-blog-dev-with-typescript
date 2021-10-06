@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux';
 import { ALERT, IAlertType } from '../types/alertTypes';
 import { IComment } from '../../utils/TypeScript';
-import { getAPI, postAPI, patchAPI } from '../../utils/FetchData';
+import { getAPI, postAPI, patchAPI, deleteAPI } from '../../utils/FetchData';
 import { CREATE_COMMENT, DELETE_COMMENT, DELETE_REPLY, GET_COMMENTS, ICreateCommentType, IDeleteType, IGetCommentsType, IReplyCommentType, IUpdateType, REPLY_COMMENT, UPDATE_COMMENT, UPDATE_REPLY } from '../types/commentTypes';
 
 export const createComment = (data: IComment, token: string) => 
@@ -76,9 +76,7 @@ export const deleteComment = (data: IComment, token: string) =>
         payload: data
       });
 
-      // await patchAPI(`comment/${data._id}`, {
-      //   content: data.content
-      // }, token);
+      await deleteAPI(`comment/${data._id}`, token);
 
     } catch (err: any) {
       dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});

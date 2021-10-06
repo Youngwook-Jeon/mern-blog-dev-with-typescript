@@ -178,6 +178,36 @@ const commentController = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  deleteComment: async (req: IReqAuth, res: Response) => {
+    if (!req.user) return res.status(400).json({ msg: "Invalid Authorization" });
+
+    try {
+      const comment = await Comments.findOneAndDelete({
+        _id: req.params.id,
+        $or: [
+          { user: req.user._id },
+          { blog_user_id: req.user._id }
+        ]
+      });
+
+      if (!comment)
+        return res.status(400).json({ msg: "Comment does not exist." });
+
+      if (comment.comment_root) {
+        // update replyCM
+        await Comments.findOneAndUpdate({ _id: comment.comment_root }, {
+          $pull: { replyCM: comment._id }
+        });
+      } else {
+        // delete all comments in replyCM
+        await Comments.deleteMany({ _id: { $in: comment.replyCM }});
+      }
+
+      return res.json({ msg: "Delete Success!" });
+    } catch (err: any) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 export default commentController;
