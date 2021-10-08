@@ -2,8 +2,8 @@ import { Dispatch } from 'redux';
 import { IBlog } from '../../utils/TypeScript';
 import { imageUpload } from '../../utils/ImageUpload';
 import { ALERT, IAlertType } from '../types/alertTypes';
-import { GET_HOME_BLOGS, IGetHomeBlogsType, GET_BLOGS_CATEGORY_ID, IGetBlogsCategoryType, IGetBlogsUserType, GET_BLOGS_USER_ID, ICreateBlogsUserType, CREATE_BLOGS_USER_ID } from '../types/blogTypes';
-import { postAPI, getAPI, putAPI } from '../../utils/FetchData';
+import { GET_HOME_BLOGS, IGetHomeBlogsType, GET_BLOGS_CATEGORY_ID, IGetBlogsCategoryType, IGetBlogsUserType, GET_BLOGS_USER_ID, ICreateBlogsUserType, CREATE_BLOGS_USER_ID, IDeleteBlogsUserType, DELETE_BLOGS_USER_ID } from '../types/blogTypes';
+import { postAPI, getAPI, putAPI, deleteAPI } from '../../utils/FetchData';
 
 export const createBlog = (blog: IBlog, token: string) => async (dispatch: Dispatch<IAlertType | ICreateBlogsUserType>) => {
   let url;
@@ -107,14 +107,14 @@ export const updateBlog = (blog: IBlog, token: string) => async (dispatch: Dispa
   }
 }
 
-export const deleteBlog = (blog: IBlog, token: string) => async (dispatch: Dispatch<IAlertType>) => {
-  let url;
+export const deleteBlog = (blog: IBlog, token: string) => async (dispatch: Dispatch<IAlertType | IDeleteBlogsUserType>) => {
   try {
-    dispatch({ type: ALERT, payload: { loading: true }});
+    dispatch({
+      type: DELETE_BLOGS_USER_ID,
+      payload: blog
+    });
 
-    
-
-    dispatch({ type: ALERT, payload: { }});
+    await deleteAPI(`blog/${blog._id}`, token);
   } catch (err: any) {
     dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
   }

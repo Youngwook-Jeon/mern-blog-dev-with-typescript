@@ -1,5 +1,5 @@
 import { IUser } from '../../utils/TypeScript';
-import { CREATE_BLOGS_USER_ID, GET_BLOGS_USER_ID, IBlogsUser, IBlogUserType } from '../types/blogTypes';
+import { CREATE_BLOGS_USER_ID, DELETE_BLOGS_USER_ID, GET_BLOGS_USER_ID, IBlogsUser, IBlogUserType } from '../types/blogTypes';
 
 const blogsUserReducer = (state: IBlogsUser[] = [], action: IBlogUserType): IBlogsUser[] => {
   switch (action.type) {
@@ -7,8 +7,8 @@ const blogsUserReducer = (state: IBlogsUser[] = [], action: IBlogUserType): IBlo
       if (state.every(item => item.id !== action.payload.id)) {
         return [...state, action.payload];
       } else {
-        return state.map(blog => (
-          blog.id === action.payload.id ? action.payload : blog
+        return state.map(item => (
+          item.id === action.payload.id ? action.payload : item
         ))
       }
 
@@ -22,6 +22,17 @@ const blogsUserReducer = (state: IBlogsUser[] = [], action: IBlogUserType): IBlo
         : item
       ))
       
+    case DELETE_BLOGS_USER_ID:
+      return state.map(item => (
+        item.id === (action.payload.user as IUser)._id 
+        ? {
+          ...item,
+          blogs: item.blogs.filter(blog => (
+            blog._id !== action.payload._id
+          ))
+        }
+        : item
+      ))
 
     default:
       return state;

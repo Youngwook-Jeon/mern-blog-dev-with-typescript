@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { IBlog, IParams, RootStore } from '../../utils/TypeScript';
 import { deleteBlog } from '../../redux/actions/blogAction';
+import { ALERT } from '../../redux/types/alertTypes';
 
 interface IProps {
   blog: IBlog;
@@ -15,6 +16,11 @@ const CardHoriz: React.FC<IProps> = ({ blog }) => {
 
   const handleDelete = () => {
     if (!auth.user || !auth.access_token) return;
+
+    if (slug !== auth.user._id) return dispatch({
+      type: ALERT,
+      payload: { errors: 'Invalid Authorization.' }
+    });
 
     if (window.confirm("Do you want to delete this blog?")) {
       dispatch(deleteBlog(blog, auth.access_token));
