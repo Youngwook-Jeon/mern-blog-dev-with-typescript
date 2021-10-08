@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { IBlog, IParams, IUser, RootStore } from '../../utils/TypeScript';
+import { useDispatch, useSelector } from 'react-redux';
+import { IBlog, IParams, RootStore } from '../../utils/TypeScript';
+import { deleteBlog } from '../../redux/actions/blogAction';
 
 interface IProps {
   blog: IBlog;
@@ -10,6 +11,15 @@ interface IProps {
 const CardHoriz: React.FC<IProps> = ({ blog }) => {
   const { slug } = useParams<IParams>();
   const { auth } = useSelector((state: RootStore) => state);
+  const dispatch = useDispatch();
+
+  const handleDelete = () => {
+    if (!auth.user || !auth.access_token) return;
+
+    if (window.confirm("Do you want to delete this blog?")) {
+      dispatch(deleteBlog(blog, auth.access_token));
+    }
+  };
 
   return (
     <div className="card mb-3" style={{ minWidth: '280px' }}>
@@ -38,19 +48,21 @@ const CardHoriz: React.FC<IProps> = ({ blog }) => {
             <p className="card-text">{blog.description}</p>
             {
               blog.title && 
-              <p className="card-text d-flex justify-content-between">
+              <div className="card-text d-flex justify-content-between align-items-center">
                 {
-                  (slug && (blog.user as IUser)._id === auth.user?._id) &&
-                  <small>
+                  (slug === auth.user?._id) &&
+                  <div style={{ cursor: 'pointer' }}>
                     <Link to={`/update_blog/${blog._id}`}>
-                      Update
+                      <i className="fas fa-edit" title="edit" />
                     </Link>
-                  </small>
+
+                    <i className="fas fa-trash text-danger mx-3" title="delete" onClick={handleDelete} />
+                  </div>
                 }
                 <small className="text-muted">
                   {new Date(blog.createdAt).toLocaleString()}
                 </small>
-              </p>
+              </div>
             }
           </div>
         </div>
