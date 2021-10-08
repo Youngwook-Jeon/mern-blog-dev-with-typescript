@@ -4,6 +4,7 @@ import { ALERT, IAlertType } from '../types/alertTypes';
 import { IUserLogin, IUserRegister } from '../../utils/TypeScript';
 import { postAPI, getAPI } from '../../utils/FetchData';
 import { validRegister, validPhone } from '../../utils/Validators';
+import { checkTokenExp } from '../../utils/CheckTokenExp';
 
 export const login = (userLogin: IUserLogin) => async (dispatch: Dispatch<IAuthType | IAlertType>) => {
   try {
@@ -53,11 +54,13 @@ export const refreshToken = () => async (dispatch: Dispatch<IAuthType | IAlertTy
   }
 }
 
-export const logout = () => async (dispatch: Dispatch<IAuthType | IAlertType>) => {
+export const logout = (token: string) => async (dispatch: Dispatch<IAuthType | IAlertType>) => {
+  const result = await checkTokenExp(token, dispatch);
+  const access_token = result ? result : token;
   try {
     localStorage.removeItem('logged');
     dispatch({ type: AUTH, payload: { }});
-    await getAPI('logout');
+    await getAPI('logout', access_token);
   } catch (err: any) {
     dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
   }

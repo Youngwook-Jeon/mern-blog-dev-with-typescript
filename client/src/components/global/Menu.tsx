@@ -24,6 +24,12 @@ const Menu = () => {
   const isActive = (pn: string) => {
     if (pn === pathname) return 'active';
   };
+
+  const handleLogout = () => {
+    if (!auth.access_token) return;
+
+    dispatch(logout(auth.access_token));
+  }
   
   return (
     <ul className="navbar-nav ms-auto">
@@ -51,7 +57,7 @@ const Menu = () => {
           <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><Link className="dropdown-item" to={`/profile/${auth.user._id}`}>Profile</Link></li>
             <li><hr className="dropdown-divider" /></li>
-            <li><Link className="dropdown-item" to="/" onClick={() => dispatch(logout())}>Logout</Link></li>
+            <li><Link className="dropdown-item" to="/" onClick={handleLogout}>Logout</Link></li>
           </ul>
         </li>
       }

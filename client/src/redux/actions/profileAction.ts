@@ -5,9 +5,13 @@ import { checkImage, imageUpload } from '../../utils/ImageUpload';
 import { patchAPI, getAPI } from '../../utils/FetchData';
 import { checkPassword } from '../../utils/Validators';
 import { GET_OTHER_INFO, IGetOtherInfoType } from '../types/profileTypes';
+import { checkTokenExp } from '../../utils/CheckTokenExp';
 
 export const updateUser = (avatar: File, name: string, auth: IAuth) => async (dispatch: Dispatch<IAlertType | IAuthType>) => {
   if (!auth.access_token || !auth.user) return;
+
+  const result = await checkTokenExp(auth.access_token, dispatch);
+  const access_token = result ? result : auth.access_token;
 
   let url = '';
   try {
@@ -26,7 +30,7 @@ export const updateUser = (avatar: File, name: string, auth: IAuth) => async (di
     dispatch({
       type: AUTH,
       payload: {
-        access_token: auth.access_token,
+        access_token: access_token,
         user: {
           ...auth.user,
           avatar: url ? url : auth.user.avatar, 
@@ -37,7 +41,7 @@ export const updateUser = (avatar: File, name: string, auth: IAuth) => async (di
 
     const res = await patchAPI('user', { 
       avatar: url ? url : auth.user.avatar, name: name ? name : auth.user.name 
-    }, auth.access_token);
+    }, access_token);
 
     dispatch({ type: ALERT, payload: { success: res.data.msg }});
   } catch (err: any) {
@@ -46,12 +50,15 @@ export const updateUser = (avatar: File, name: string, auth: IAuth) => async (di
 }
 
 export const resetPassword = (password: string, cf_password: string, token: string) => async (dispatch: Dispatch<IAlertType | IAuthType>) => {
+  const result = await checkTokenExp(token, dispatch);
+  const access_token = result ? result : token;
+
   const msg = checkPassword(password, cf_password);
   if (msg) return dispatch({ type: ALERT, payload: { errors: msg }});
   try {
     dispatch({ type: ALERT, payload: { loading: true }});  
 
-    const res = await patchAPI('reset_password', { password }, token);
+    const res = await patchAPI('reset_password', { password }, access_token);
     dispatch({ type: ALERT, payload: { success: res.data.msg }});  
   } catch (err: any) {
     dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});

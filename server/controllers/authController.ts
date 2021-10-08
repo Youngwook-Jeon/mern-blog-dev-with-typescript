@@ -6,7 +6,7 @@ import { generateActiveToken, generateAccessToken, generateRefreshToken } from '
 import sendEmail from '../config/sendMail';
 import { validateEmail, validPhone } from '../middleware/valid';
 import { sendSms, smsOTP, smsVerify } from '../config/sendSMS';
-import { IDecodedToken, IUser, IGgPayload, IUserParams } from '../config/interface';
+import { IDecodedToken, IUser, IGgPayload, IUserParams, IReqAuth } from '../config/interface';
 import { OAuth2Client } from 'google-auth-library';
 import fetch from 'node-fetch';
 
@@ -67,9 +67,16 @@ const authController = {
             return res.status(500).json({ msg: err.message });
         }
     },
-    logout: async(req: Request, res: Response) => {
+    logout: async(req: IReqAuth, res: Response) => {
+        if (!req.user) return res.status(400).json({ msg: "Invalid Authorization." });
+
         try {
             res.clearCookie('refreshtoken', { path: `/api/refresh_token` });
+
+            await Users.findOneAndUpdate({ _id: req.user._id }, {
+                rf_token: ''
+            });
+
             return res.json({ msg: 'Logged out!' });
         } catch (err: any) {
             return res.status(500).json({ msg: err.message });
@@ -83,10 +90,18 @@ const authController = {
             const decoded = <IDecodedToken>jwt.verify(rf_token, `${process.env.REFRESH_TOKEN_SECRET}`);
             if (!decoded.id) return res.status(400).json({ msg: "Please login first!" });
 
-            const user = await Users.findById(decoded.id).select("-password");
+            let user = await Users.findById(decoded.id).select("-password +rf_token");
             if (!user) return res.status(400).json({ msg: "This account does not exist." });
 
+            if (rf_token !== user.rf_token)
+                return res.status(400).json({ msg: "Please login first!" });
+
             const access_token = generateAccessToken({ id: user._id });
+            const refresh_token = generateRefreshToken({ id: user._id }, res);
+
+            user = await Users.findOneAndUpdate({ _id: user._id }, {
+                rf_token: refresh_token
+            }).select("-password +rf_token");
             
             res.json({ access_token, user });
         } catch (err: any) {
@@ -199,12 +214,10 @@ const loginUser = async (user: IUser, password: string, res: Response) => {
     if (!isMatch) return res.status(400).json({ msg: 'Password is not correct.' });
 
     const access_token = generateAccessToken({ id: user._id });
-    const refresh_token = generateRefreshToken({ id: user._id });
+    const refresh_token = generateRefreshToken({ id: user._id }, res);
 
-    res.cookie('refreshtoken', refresh_token, {
-        httpOnly: true,
-        path: `/api/refresh_token`,
-        maxAge: 30 * 24 * 60 * 60 * 1000
+    await Users.findOneAndUpdate({ _id: user._id }, {
+        rf_token: refresh_token
     });
 
     res.json({
@@ -216,15 +229,12 @@ const loginUser = async (user: IUser, password: string, res: Response) => {
 
 const registerUser = async (user: IUserParams, res: Response) => {
     const newUser = new Users(user);
-    await newUser.save();
+    
     const access_token = generateAccessToken({ id: newUser._id });
-    const refresh_token = generateRefreshToken({ id: newUser._id });
+    const refresh_token = generateRefreshToken({ id: newUser._id }, res);
 
-    res.cookie('refreshtoken', refresh_token, {
-        httpOnly: true,
-        path: `/api/refresh_token`,
-        maxAge: 30 * 24 * 60 * 60 * 1000
-    });
+    newUser.rf_token = refresh_token;
+    await newUser.save();
 
     res.json({
         msg: 'Login Success!',

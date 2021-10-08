@@ -4,8 +4,12 @@ import { imageUpload } from '../../utils/ImageUpload';
 import { ALERT, IAlertType } from '../types/alertTypes';
 import { GET_HOME_BLOGS, IGetHomeBlogsType, GET_BLOGS_CATEGORY_ID, IGetBlogsCategoryType, IGetBlogsUserType, GET_BLOGS_USER_ID, ICreateBlogsUserType, CREATE_BLOGS_USER_ID, IDeleteBlogsUserType, DELETE_BLOGS_USER_ID } from '../types/blogTypes';
 import { postAPI, getAPI, putAPI, deleteAPI } from '../../utils/FetchData';
+import { checkTokenExp } from '../../utils/CheckTokenExp';
 
 export const createBlog = (blog: IBlog, token: string) => async (dispatch: Dispatch<IAlertType | ICreateBlogsUserType>) => {
+  const result = await checkTokenExp(token, dispatch);
+  const access_token = result ? result : token;
+
   let url;
   try {
     dispatch({ type: ALERT, payload: { loading: true }});
@@ -18,7 +22,7 @@ export const createBlog = (blog: IBlog, token: string) => async (dispatch: Dispa
     }
     
     const newBlog = { ...blog, thumbnail: url };
-    const res = await postAPI('blog', newBlog, token);
+    const res = await postAPI('blog', newBlog, access_token);
 
     dispatch({
       type: CREATE_BLOGS_USER_ID,
@@ -87,6 +91,9 @@ export const getBlogsByUserId = (id: string, search: string) => async (dispatch:
 }
 
 export const updateBlog = (blog: IBlog, token: string) => async (dispatch: Dispatch<IAlertType>) => {
+  const result = await checkTokenExp(token, dispatch);
+  const access_token = result ? result : token;
+
   let url;
   try {
     dispatch({ type: ALERT, payload: { loading: true }});
@@ -99,7 +106,7 @@ export const updateBlog = (blog: IBlog, token: string) => async (dispatch: Dispa
     }
     
     const newBlog = { ...blog, thumbnail: url };
-    const res = await putAPI(`blog/${newBlog._id}`, newBlog, token);
+    const res = await putAPI(`blog/${newBlog._id}`, newBlog, access_token);
 
     dispatch({ type: ALERT, payload: { success: res.data.msg }});
   } catch (err: any) {
@@ -108,13 +115,15 @@ export const updateBlog = (blog: IBlog, token: string) => async (dispatch: Dispa
 }
 
 export const deleteBlog = (blog: IBlog, token: string) => async (dispatch: Dispatch<IAlertType | IDeleteBlogsUserType>) => {
+  const result = await checkTokenExp(token, dispatch);
+  const access_token = result ? result : token;
   try {
     dispatch({
       type: DELETE_BLOGS_USER_ID,
       payload: blog
     });
 
-    await deleteAPI(`blog/${blog._id}`, token);
+    await deleteAPI(`blog/${blog._id}`, access_token);
   } catch (err: any) {
     dispatch({ type: ALERT, payload: { errors: err.response.data.msg }});
   }
