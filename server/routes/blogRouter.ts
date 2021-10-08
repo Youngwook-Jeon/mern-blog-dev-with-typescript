@@ -8,7 +8,9 @@ router.post('/blog', auth, blogController.createBlog);
 router.get('/home/blogs', blogController.getHomeBlogs);
 router.get('/blogs/category/:id', blogController.getBlogsByCategory);
 router.get('/blogs/user/:id', blogController.getBlogsByUser);
-router.get('/blog/:id', blogController.getBlog);
+router.route('/blog/:id')
+  .get(blogController.getBlog)
+  .put(auth, blogController.updateBlog);
 
 
 export default router;
