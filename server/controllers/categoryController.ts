@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Category from '../models/categoryModel';
+import Blog from '../models/blogModel';
 import { IReqAuth } from '../config/interface';
 
 const categoryController = {
@@ -56,7 +57,15 @@ const categoryController = {
     if (req.user.role !== 'admin')
       return res.status(400).json({ msg: "Invalid Authorization." });
     try {
-      await Category.findByIdAndDelete(req.params.id);
+      const blog = await Blog.findOne({ category: req.params.id });
+
+      if (blog) 
+        return res.status(400).json({
+          msg: "Cannot delete the category. Blogs with the category already exist."
+        })
+      const category = await Category.findByIdAndDelete(req.params.id);
+      if (!category)
+        return res.status(400).json({ msg: "Category does not exist." });
 
       res.json({ msg: "Delete Success!" });
     } catch (err: any) {
