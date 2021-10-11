@@ -13,5 +13,6 @@ router.route('/blog/:id')
   .put(auth, blogController.updateBlog)
   .delete(auth, blogController.deleteBlog);
 
+router.get('/search/blogs', blogController.searchBlogs);
 
 export default router;
